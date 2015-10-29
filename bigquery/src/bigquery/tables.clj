@@ -2,6 +2,7 @@
   (:import [com.google.api.services.bigquery Bigquery Bigquery$Tables]
            [com.google.api.services.bigquery.model Table TableList$Tables TableReference TableSchema TableFieldSchema])
   (:require [bigquery.coerce :as bc]
+            [googlecloud.core :as gc]
             [schema.core :as s]))
 
 (extend-protocol bc/ToClojure
@@ -20,15 +21,7 @@
             ([] (-> service (.tables) (.list project-id dataset-id)))
             ([page-token] (doto (mk-list-op)
                             (.setPageToken page-token))))]
-    (->> (loop [tables  nil
-                list-op (mk-list-op)]
-           (let [result (.execute list-op)
-                 token  (.getNextPageToken result)
-                 new-tables (.getTables result)]
-             (if (nil? token)
-               (concat tables new-tables)
-               (recur (concat tables new-tables) (mk-list-op token)))))
-         (map bc/to-clojure))))
+    (->> (gc/lazy-paginate-seq mk-list-op #(.getTables %)) (map bc/to-clojure))))
 
 
 (def table-reference-schema
