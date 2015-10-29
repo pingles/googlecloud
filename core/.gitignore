@@ -1,12 +1,11 @@
-**/target
-**/classes
+/target
+/classes
 /checkouts
 pom.xml
 pom.xml.asc
 *.jar
 *.class
 /.lein-*
-**/.nrepl-port
+/.nrepl-port
 .hgignore
 .hg/
-**/tmp
