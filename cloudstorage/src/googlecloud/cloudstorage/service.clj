@@ -1,4 +1,4 @@
-(ns cloudstorage.service
+(ns googlecloud.cloudstorage.service
   (:import [com.google.api.services.storage StorageScopes Storage$Builder]
            [com.google.api.client.googleapis.javanet GoogleNetHttpTransport]
            [com.google.api.client.json.jackson2 JacksonFactory]))

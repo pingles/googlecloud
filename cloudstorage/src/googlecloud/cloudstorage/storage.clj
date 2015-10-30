@@ -1,4 +1,4 @@
-(ns cloudstorage.storage
+(ns googlecloud.cloudstorage.storage
   (:require [clojure.java.io :as io]
             [googlecloud.core :as gc])
   (:import [com.google.api.services.storage.model Bucket StorageObject]
