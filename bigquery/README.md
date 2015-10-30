@@ -10,9 +10,11 @@ Currently `bigquery` supports service account authentication.
 
 ```clojure
 (ns example
-  (:require [bigquery.auth :as ba]))
-
-(def bigquery-service (ba/service-account "some-account@developer.gserviceaccount.com" "./path/to/creds.p12"))
+  (:require [googlecloud.credentials :as gc]
+            [googlecloud.bigquery.service :as bc]))
+  
+(def credentials (gc/service-credentials "some-account@developer.gserviceaccount.com" "./path/to/creds.p12" [(bc/scopes :manage)]))
+(def bigquery-service (bc/service credentials))
 ```
 
 ### Creating a Dataset
