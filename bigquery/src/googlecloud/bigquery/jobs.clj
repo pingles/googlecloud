@@ -1,5 +1,5 @@
-(ns bigquery.jobs
-  (:use [bigquery.coerce :as bc])
+(ns googlecloud.bigquery.jobs
+  (:use [googlecloud.bigquery.coerce :as bc])
   (:import [java.util Date]
            [com.google.api.services.bigquery.model JobList Job JobConfigurationLoad JobConfigurationQuery JobConfiguration JobStatus JobStatistics JobList$Jobs JobReference GetQueryResultsResponse TableRow TableCell TableSchema TableFieldSchema TableReference]))
 

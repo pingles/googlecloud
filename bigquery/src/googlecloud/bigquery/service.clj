@@ -1,4 +1,4 @@
-(ns bigquery.service
+(ns googlecloud.bigquery.service
   (:import [com.google.api.services.bigquery BigqueryScopes Bigquery$Builder]
            [com.google.api.client.googleapis.javanet GoogleNetHttpTransport]
            [com.google.api.client.json.jackson2 JacksonFactory])

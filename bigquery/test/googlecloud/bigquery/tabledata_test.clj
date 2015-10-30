@@ -1,5 +1,5 @@
-(ns bigquery.tabledata-test
-  (:require [bigquery.tabledata :refer :all]
+(ns googlecloud.bigquery.tabledata-test
+  (:require [googlecloud.bigquery.tabledata :refer :all]
             [clojure.test :refer :all]))
 
 (deftest insert-request-rows

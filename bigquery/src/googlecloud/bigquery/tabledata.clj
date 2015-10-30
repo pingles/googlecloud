@@ -1,4 +1,4 @@
-(ns bigquery.tabledata
+(ns googlecloud.bigquery.tabledata
   (:import [com.google.api.services.bigquery Bigquery Bigquery$Tabledata]
            [com.google.api.services.bigquery.model Table TableDataInsertAllRequest TableDataInsertAllRequest$Rows TableRow])
   (:require [schema.core :as s]))

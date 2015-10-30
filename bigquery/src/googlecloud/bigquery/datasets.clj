@@ -1,5 +1,5 @@
-(ns bigquery.datasets
-  (:require [bigquery.coerce :as bc])
+(ns googlecloud.bigquery.datasets
+  (:require [googlecloud.bigquery.coerce :as bc])
   (:import [com.google.api.services.bigquery Bigquery Bigquery$Datasets]
            [com.google.api.services.bigquery.model Dataset DatasetList$Datasets DatasetReference]))
 

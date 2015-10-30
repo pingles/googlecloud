@@ -1,7 +1,7 @@
-(ns bigquery.tables
+(ns googlecloud.bigquery.tables
   (:import [com.google.api.services.bigquery Bigquery Bigquery$Tables]
            [com.google.api.services.bigquery.model Table TableList$Tables TableReference TableSchema TableFieldSchema])
-  (:require [bigquery.coerce :as bc]
+  (:require [googlecloud.bigquery.coerce :as bc]
             [googlecloud.core :as gc]
             [schema.core :as s]))
 
