@@ -1,11 +1,10 @@
 (ns googlecloud.bigquery.tables
   (:import [com.google.api.services.bigquery Bigquery Bigquery$Tables]
            [com.google.api.services.bigquery.model Table TableList$Tables TableReference TableSchema TableFieldSchema])
-  (:require [googlecloud.bigquery.coerce :as bc]
-            [googlecloud.core :as gc]
+  (:require [googlecloud.core :as gc]
             [schema.core :as s]))
 
-(extend-protocol bc/ToClojure
+(extend-protocol gc/ToClojure
   TableReference
   (to-clojure [ref] {:project-id (.getProjectId ref)
                      :dataset-id (.getDatasetId ref)
@@ -14,14 +13,14 @@
   (to-clojure [tables]
     {:id            (.getId tables)
      :friendly-name (.getFriendlyName tables)
-     :reference     (bc/to-clojure (.getTableReference tables))}))
+     :reference     (gc/to-clojure (.getTableReference tables))}))
 
 (defn list [^Bigquery service project-id dataset-id]
   (letfn [(mk-list-op
             ([] (-> service (.tables) (.list project-id dataset-id)))
             ([page-token] (doto (mk-list-op)
                             (.setPageToken page-token))))]
-    (->> (gc/lazy-paginate-seq mk-list-op #(.getTables %)) (map bc/to-clojure))))
+    (->> (gc/lazy-paginate-seq mk-list-op #(.getTables %)) (map gc/to-clojure))))
 
 
 (def table-reference-schema
@@ -81,10 +80,10 @@
     (.setDescription    description)
     (.setSchema         (mk-schema schema))))
 
-(extend-protocol bc/ToClojure
+(extend-protocol gc/ToClojure
   Table
   (to-clojure [table] {:id (.getId table)
-                       :table-reference (bc/to-clojure (.getTableReference table))
+                       :table-reference (gc/to-clojure (.getTableReference table))
                        :friendly-name (.getFriendlyName table)
                        :description   (.getDescription table)}))
 
@@ -92,7 +91,7 @@
   (let [op (-> service
                (.tables)
                (.insert (:project-id table-reference) (:dataset-id table-reference) (mk-table table)))]
-    (bc/to-clojure (.execute op))))
+    (gc/to-clojure (.execute op))))
 
 (defn delete [^Bigquery service project-id dataset-id table-id]
   (let [delete-op (-> service (.tables) (.delete project-id dataset-id table-id))]

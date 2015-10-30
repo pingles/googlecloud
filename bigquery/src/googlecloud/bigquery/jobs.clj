@@ -1,9 +1,9 @@
 (ns googlecloud.bigquery.jobs
-  (:use [googlecloud.bigquery.coerce :as bc])
+  (:use [googlecloud.core :as gc])
   (:import [java.util Date]
            [com.google.api.services.bigquery.model JobList Job JobConfigurationLoad JobConfigurationQuery JobConfiguration JobStatus JobStatistics JobList$Jobs JobReference GetQueryResultsResponse TableRow TableCell TableSchema TableFieldSchema TableReference]))
 
-(extend-protocol bc/ToClojure
+(extend-protocol gc/ToClojure
   JobReference
   (to-clojure [ref] {:project-id (.getProjectId ref)
                      :job-id     (.getJobId ref)})
@@ -93,7 +93,7 @@
       (.setConfiguration (-> (JobConfiguration. ) (.setQuery query))))))
 
 
-(extend-protocol bc/ToClojure
+(extend-protocol gc/ToClojure
   TableCell
   (to-clojure [cell] (.getV cell))
   TableRow
