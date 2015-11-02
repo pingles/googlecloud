@@ -13,7 +13,7 @@
          op    (fetch-op)]
     (let [result    (.execute op)
           token     (.getNextPageToken result)
-          new-items (.getItems result)]
+          new-items (result-fn result)]
       (if (nil? token)
         (lazy-cat items new-items)
         (recur (lazy-cat items new-items) (fetch-op token))))))
