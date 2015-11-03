@@ -1,4 +1,4 @@
-(defproject googlecloud "0.2.0-SNAPSHOT"
+(defproject googlecloud "0.2.0"
   :description "Google Cloud service clients for Clojure"
   :url "https://github.com/pingles/googlecloud"
   :license {:name "Eclipse Public License"
