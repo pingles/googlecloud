@@ -2,7 +2,8 @@
   (:import [com.google.api.services.bigquery Bigquery Bigquery$Tables]
            [com.google.api.services.bigquery.model Table TableList$Tables TableReference TableSchema TableFieldSchema])
   (:require [googlecloud.core :as gc]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [clojure.walk :as walk]))
 
 (extend-protocol gc/ToClojure
   TableReference
@@ -22,6 +23,9 @@
                             (.setPageToken page-token))))]
     (->> (gc/lazy-paginate-seq mk-list-op #(.getTables %)) (map gc/to-clojure))))
 
+(defn get [service project-id dataset-id table-id]
+  (-> service (.tables) (.get project-id dataset-id table-id) (.execute) (gc/to-clojure)))
+
 
 (def table-reference-schema
   "A reference for a table in a dataset"
@@ -35,10 +39,11 @@
     (.setDatasetId dataset-id)
     (.setTableId   table-id)))
 
-(def table-field-schema {:name                    s/Str
-                         :type                    (s/enum :string :integer :float :boolean :timestamp :record)
-                         (s/optional-key :mode)   (s/enum :nullable :required :repeated)
-                         (s/optional-key :fields) [(s/recursive #'table-field-schema)]})
+(def table-field-schema {:name                         s/Str
+                         (s/optional-key :description) s/Str
+                         :type                         (s/enum :string :integer :float :boolean :timestamp :record)
+                         (s/optional-key :mode)        (s/enum :nullable :required :repeated)
+                         (s/optional-key :fields)      [(s/recursive #'table-field-schema)]})
 
 (def table-schema
   "BigQuery Table schema"
@@ -80,12 +85,43 @@
     (.setDescription    description)
     (.setSchema         (mk-schema schema))))
 
+(defn mode->clojure [s]
+  ({"NULLABLE" :nullable
+    "REQUIRED" :required
+    "REPEATED" :repeated} s))
+
+(defn type->clojure [t]
+  ({"STRING"    :string
+    "INTEGER"   :integer
+    "FLOAT"     :float
+    "BOOLEAN"   :boolean
+    "TIMESTAMP" :timestamp
+    "RECORD"    :record} t))
+
+(defn dissoc-nils [m]
+  (let [f (fn [[k v]]
+            (when (not (nil? v))
+              [k v]))]
+    (walk/postwalk (fn [x] (if (map? x)
+                            (into {} (map f x))
+                            x))
+                   m)))
+
 (extend-protocol gc/ToClojure
+  TableFieldSchema
+  (to-clojure [field-schema] {:name        (.getName field-schema)
+                              :description (.getDescription field-schema)
+                              :mode        (mode->clojure (.getMode field-schema))
+                              :type        (type->clojure (.getType field-schema))
+                              :fields      (seq (map gc/to-clojure (.getFields field-schema)))})
+  TableSchema
+  (to-clojure [schema] (map gc/to-clojure (.getFields schema)))
   Table
-  (to-clojure [table] {:id (.getId table)
-                       :table-reference (gc/to-clojure (.getTableReference table))
-                       :friendly-name (.getFriendlyName table)
-                       :description   (.getDescription table)}))
+  (to-clojure [table] (dissoc-nils {:id              (.getId table)
+                                    :table-reference (gc/to-clojure (.getTableReference table))
+                                    :friendly-name   (.getFriendlyName table)
+                                    :description     (.getDescription table)
+                                    :schema          (gc/to-clojure (.getSchema table))})))
 
 (defn insert [^Bigquery service {:keys [table-reference] :as table}]
   (let [op (-> service

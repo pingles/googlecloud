@@ -1,7 +1,7 @@
 (ns googlecloud.bigquery.jobs
   (:use [googlecloud.core :as gc])
   (:import [java.util Date]
-           [com.google.api.services.bigquery.model JobList Job JobConfigurationLoad JobConfigurationQuery JobConfiguration JobStatus JobStatistics JobList$Jobs JobReference GetQueryResultsResponse TableRow TableCell TableSchema TableFieldSchema TableReference]))
+           [com.google.api.services.bigquery.model JobList Job JobConfigurationLoad JobConfigurationExtract JobConfigurationQuery JobConfiguration JobStatus JobStatistics JobList$Jobs JobReference GetQueryResultsResponse TableRow TableCell TableSchema TableFieldSchema TableReference]))
 
 (extend-protocol gc/ToClojure
   JobReference
@@ -48,6 +48,18 @@
     (.setProjectId project-id)
     (.setTableId table-id)))
 
+(defn extract-job
+  [{:keys [dataset-id project-id table-id] :as table-reference} destination-uris & {:keys [destination-format]
+                                                                                    :or   {destination-format :json}}]
+  (let [extract (JobConfigurationExtract.)]
+    (.setSourceTable extract (mk-table-reference table-reference))
+    (.setDestinationUris extract destination-uris)
+    (.setDestinationFormat extract ({:avro "AVRO"
+                                     :json "NEWLINE_DELIMITED_JSON"
+                                     :csv  "CSV"} destination-format))
+    (doto (Job.)
+      (.setConfiguration (-> (JobConfiguration.) (.setExtract extract))))))
+
 (defn load-job
   "Creates a job to load data from sources into the table, identified by
   its table reference. "
@@ -91,7 +103,6 @@
     (.setQuery             query query-statement)
     (doto (Job.)
       (.setConfiguration (-> (JobConfiguration. ) (.setQuery query))))))
-
 
 (extend-protocol gc/ToClojure
   TableCell
