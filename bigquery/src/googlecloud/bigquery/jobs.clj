@@ -1,45 +1,20 @@
 (ns googlecloud.bigquery.jobs
-  (:use [googlecloud.core :as gc])
+  (:require [googlecloud.core :as gc]
+            [googlecloud.bigquery.coerce])
   (:import [java.util Date]
-           [com.google.api.services.bigquery.model JobList Job JobConfigurationLoad JobConfigurationExtract JobConfigurationQuery JobConfiguration JobStatus JobStatistics JobList$Jobs JobReference GetQueryResultsResponse TableRow TableCell TableSchema TableFieldSchema TableReference]))
-
-(extend-protocol gc/ToClojure
-  JobReference
-  (to-clojure [ref] {:project-id (.getProjectId ref)
-                     :job-id     (.getJobId ref)})
-
-  JobList$Jobs
-  (to-clojure [job] {:status (to-clojure (.getStatus job))
-                     :job-reference (to-clojure (.getJobReference job))
-                     :statistics (to-clojure (.getStatistics job))})
-
-  JobStatus
-  (to-clojure [status] {:state  (.getState status)
-                        :errors (.getErrors status)})
-  JobStatistics
-  (to-clojure [statistics] {:started (when-let [e (.getStartTime statistics)]
-                                       (Date. e))
-                            :ended   (when-let [e (.getEndTime   statistics)]
-                                       (Date. e))})
-  Job
-  (to-clojure [job] {:job-reference (to-clojure (.getJobReference job))
-                     :status        (to-clojure (.getStatus job))
-                     :statistics    (to-clojure (.getStatistics job))})
-  JobList
-  (to-clojure [list]
-    (map to-clojure (.getJobs list))))
+           [com.google.api.services.bigquery.model Job TableReference JobConfigurationExtract JobConfiguration JobConfigurationLoad JobConfigurationQuery]))
 
 (defn list [service project-id]
   (let [op (-> service (.jobs) (.list project-id))]
-    (to-clojure (.execute op))))
+    (gc/to-clojure (.execute op))))
 
 (defn get [service project-id job-id]
   (let [op (-> service (.jobs) (.get project-id job-id))]
-    (to-clojure (.execute op))))
+    (gc/to-clojure (.execute op))))
 
 (defn insert [service project-id job]
   (let [op (-> service (.jobs) (.insert project-id job))]
-    (to-clojure (.execute op))))
+    (gc/to-clojure (.execute op))))
 
 
 (defn- mk-table-reference [{:keys [dataset-id project-id table-id]}]
@@ -104,19 +79,6 @@
     (doto (Job.)
       (.setConfiguration (-> (JobConfiguration. ) (.setQuery query))))))
 
-(extend-protocol gc/ToClojure
-  TableCell
-  (to-clojure [cell] (.getV cell))
-  TableRow
-  (to-clojure [row] (map to-clojure (.getF row)))
-  TableSchema
-  (to-clojure [schema] (map to-clojure (.getFields schema)))
-  TableFieldSchema
-  (to-clojure [schema] {:name   (.getName schema)
-                        :type   (.getType schema)
-                        :fields (seq (map to-clojure (.getFields schema)))
-                        :mode   (.getMode schema)}))
-
 (defn query-results [service project-id job-id]
   (letfn [(mk-results-op
             ([] (-> service (.jobs) (.getQueryResults project-id job-id)))
@@ -128,9 +90,9 @@
             token    (.getPageToken result)
             new-rows (.getRows result)]
         (if (nil? token)
-          (let [rows (map to-clojure (concat rows new-rows))]
+          (let [rows (map gc/to-clojure (concat rows new-rows))]
             {:rows      rows
-             :schema    (to-clojure (.getSchema result))
+             :schema    (gc/to-clojure (.getSchema result))
              :bytes     (.getTotalBytesProcessed result)
              :cache-hit (.getCacheHit result)})
           (recur (concat rows new-rows) (mk-results-op token)))))))
