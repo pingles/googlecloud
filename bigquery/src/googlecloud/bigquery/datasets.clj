@@ -9,7 +9,8 @@
     {:id            (.getId ds)
      :friendly-name (.getFriendlyName ds)
      :description   (.getDescription ds)
-     :reference     (.getDatasetReference ds)})
+     :location      (.getLocation ds)
+     :reference     (gc/to-clojure (.getDatasetReference ds))})
   DatasetReference
   (to-clojure [ref] {:dataset-id (.getDatasetId ref)
                      :project-id (.getProjectId ref)})
@@ -24,13 +25,22 @@
          (.getDatasets)
          (map gc/to-clojure))))
 
-(defn insert [^Bigquery service project-id {:keys [id friendly-name description] :as dataset}]
-  {:pre [(not (nil? id))]}
+(defn get [^Bigquery service project-id dataset-id]
+  (let [get-op (-> service (.datasets) (.get project-id dataset-id))]
+    (->> (.execute get-op)
+         (gc/to-clojure))))
+
+(defn- map->reference [{:keys [dataset-id project-id]}]
+  (doto (DatasetReference. )
+    (.setDatasetId dataset-id)
+    (.setProjectId project-id)))
+
+(defn insert [^Bigquery service project-id {:keys [friendly-name description location reference] :as dataset}]
   (let [dataset   (doto (Dataset. )
-                    (.setDatasetReference (doto (DatasetReference. )
-                                            (.setDatasetId id)))
-                    (.setFriendlyName friendly-name)
-                    (.setDescription description))
+                    (.setDatasetReference (map->reference reference))
+                    (.setFriendlyName     friendly-name)
+                    (.setDescription      description)
+                    (.setLocation         (or location "US")))
         insert-op (-> service (.datasets) (.insert project-id dataset))]
     (gc/to-clojure (.execute insert-op))))
 

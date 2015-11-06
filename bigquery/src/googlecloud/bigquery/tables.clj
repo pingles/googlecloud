@@ -12,9 +12,9 @@
                      :table-id   (.getTableId ref)})
   TableList$Tables
   (to-clojure [tables]
-    {:id            (.getId tables)
-     :friendly-name (.getFriendlyName tables)
-     :reference     (gc/to-clojure (.getTableReference tables))}))
+    {:id              (.getId tables)
+     :friendly-name   (.getFriendlyName tables)
+     :table-reference (gc/to-clojure (.getTableReference tables))}))
 
 (defn list [^Bigquery service project-id dataset-id]
   (letfn [(mk-list-op
@@ -47,9 +47,10 @@
 
 (def table-schema
   "BigQuery Table schema"
-  {:table-reference              table-reference-schema
-   (s/optional-key :description) s/Str
-   (s/optional-key :schema)      [table-field-schema]})
+  {:table-reference                table-reference-schema
+   (s/optional-key :description)   (s/maybe s/Str)
+   (s/optional-key :friendly-name) (s/maybe s/Str)
+   (s/optional-key :schema)        [table-field-schema]})
 
 (def field-type {:string "STRING"
                  :integer "INTEGER"
@@ -78,11 +79,12 @@
   (doto (TableSchema.)
     (.setFields (map mk-fields schema))))
 
-(defn- mk-table [{:keys [table-reference description schema] :as table}]
+(defn- mk-table [{:keys [table-reference description schema friendly-name] :as table}]
   {:pre [(s/validate table-schema table)]}
   (doto (Table. )
     (.setTableReference (mk-table-reference table-reference))
     (.setDescription    description)
+    (.setFriendlyName   friendly-name)
     (.setSchema         (mk-schema schema))))
 
 (defn mode->clojure [s]
@@ -121,7 +123,8 @@
                                     :table-reference (gc/to-clojure (.getTableReference table))
                                     :friendly-name   (.getFriendlyName table)
                                     :description     (.getDescription table)
-                                    :schema          (gc/to-clojure (.getSchema table))})))
+                                    :schema          (when-let [s (.getSchema table)]
+                                                       (gc/to-clojure s))})))
 
 (defn insert [^Bigquery service {:keys [table-reference] :as table}]
   (let [op (-> service
