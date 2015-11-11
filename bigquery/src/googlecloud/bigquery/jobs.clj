@@ -41,7 +41,7 @@
   [{:keys [dataset-id project-id table-id] :as table-reference} source-uris & {:keys [create-disposition source-format write-disposition quote skip-leading allow-quoted-newlines]
                                                                                :or   {source-format :json
                                                                                       allow-quoted-newlines false
-                                                                                      create-disposition :create-never
+                                                                                      create-disposition :never
                                                                                       write-disposition :append}}]
   (let [load (JobConfigurationLoad.)]
     (.setDestinationTable load (mk-table-reference table-reference))
@@ -53,8 +53,8 @@
     (.setAllowQuotedNewlines load allow-quoted-newlines)
     (.setSourceFormat load ({:json "NEWLINE_DELIMITED_JSON"
                              :csv  "CSV"} source-format))
-    (.setCreateDisposition load ({:create-never  "CREATE_NEVER"
-                                  :create-needed "CREATE_NEEDED"} create-disposition))
+    (.setCreateDisposition load ({:never  "CREATE_NEVER"
+                                  :needed "CREATE_NEEDED"} create-disposition))
     (.setWriteDisposition load ({:append   "WRITE_APPEND"
                                  :empty    "WRITE_EMPTY"
                                  :truncate "WRITE_TRUNCATE"} write-disposition))
@@ -65,17 +65,27 @@
 (def query-priority {:interactive "INTERACTIVE"
                      :batch       "BATCH"})
 
-(defn query-job [query-statement & {:keys [use-cache priority flatten allow-large]
-                                    :or   {use-cache   false
-                                           priority    :interactive
-                                           flatten     true
-                                           allow-large false}}]
+(defn query-job [query-statement & {:keys [use-cache priority flatten allow-large
+                                           write-disposition create-disposition destination-table-reference]
+                                    :or   {use-cache          false
+                                           priority           :interactive
+                                           flatten            true
+                                           allow-large        false
+                                           write-disposition  :truncate
+                                           create-disposition :never}}]
   (let [query (JobConfigurationQuery. )]
+    (when destination-table-reference
+      (.setDestinationTable query (mk-table-reference destination-table-reference)))
     (.setUseQueryCache     query use-cache)
     (.setPriority          query (query-priority priority))
     (.setFlattenResults    query flatten)
     (.setAllowLargeResults query allow-large)
     (.setQuery             query query-statement)
+    (.setCreateDisposition query ({:never  "CREATE_NEVER"
+                                   :needed "CREATE_NEEDED"} create-disposition))
+    (.setWriteDisposition  query ({:append   "WRITE_APPEND"
+                                   :empty    "WRITE_EMPTY"
+                                   :truncate "WRITE_TRUNCATE"} write-disposition))
     (doto (Job.)
       (.setConfiguration (-> (JobConfiguration. ) (.setQuery query))))))
 
