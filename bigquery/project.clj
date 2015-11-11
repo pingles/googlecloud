@@ -1,4 +1,4 @@
-(defproject googlecloud/bigquery "0.3.3"
+(defproject googlecloud/bigquery "0.3.4-SNAPSHOT"
   :description "BijQuery"
   :url "https://github.com/pingles/googlecloud"
   :license {:name "Eclipse Public License"
@@ -8,4 +8,4 @@
                  [prismatic/schema "1.0.1"]
                  [com.google.api-client/google-api-client "1.20.0"]
                  [com.google.apis/google-api-services-bigquery "v2-rev238-1.20.0"]
-                 [googlecloud/core "0.3.3"]])
+                 [googlecloud/core "0.3.4-SNAPSHOT"]])
