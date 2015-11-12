@@ -1,4 +1,4 @@
-(defproject googlecloud/core "0.3.4-SNAPSHOT"
+(defproject googlecloud/core "0.3.4"
   :description "Google Cloud support library"
   :url "https://github.com/pingles/googlecloud"
   :license {:name "Eclipse Public License"
