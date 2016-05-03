@@ -1,7 +1,7 @@
 (ns googlecloud.bigquery.coerce
   (:require [googlecloud.core :as gc]
             [clojure.walk :as walk])
-  (:import [com.google.api.services.bigquery.model JobList Job JobConfigurationLoad JobConfigurationExtract JobConfigurationQuery JobConfiguration JobStatus JobStatistics JobList$Jobs JobReference GetQueryResultsResponse TableRow TableCell TableSchema TableFieldSchema TableReference]
+  (:import [com.google.api.services.bigquery.model JobList Job JobConfigurationLoad JobConfigurationExtract JobConfigurationQuery JobConfiguration JobStatus JobStatistics JobList$Jobs JobReference GetQueryResultsResponse TableRow TableCell TableSchema TableFieldSchema TableReference ViewDefinition]
            [com.google.api.services.bigquery Bigquery Bigquery$Tables]
            [com.google.api.services.bigquery.model Table TableList$Tables TableReference TableSchema TableFieldSchema]
            [java.util Date]))
@@ -87,5 +87,8 @@
                                     :description     (.getDescription table)
                                     :rows            (.getNumRows table)
                                     :bytes           (.getNumBytes table)
+                                    :view            (gc/to-clojure (.getView table))
                                     :schema          (when-let [s (.getSchema table)]
-                                                       (gc/to-clojure s))})))
+                                                       (gc/to-clojure s))}))
+  ViewDefinition
+  (to-clojure [view] {:query (.getQuery view)}))
