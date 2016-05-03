@@ -1,4 +1,4 @@
-(defproject googlecloud/bigquery "0.3.8"
+(defproject googlecloud/bigquery "0.3.9"
   :description "BijQuery"
   :url "https://github.com/pingles/googlecloud"
   :license {:name "Eclipse Public License"
