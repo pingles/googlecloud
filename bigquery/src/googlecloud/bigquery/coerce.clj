@@ -85,5 +85,7 @@
                                     :table-reference (gc/to-clojure (.getTableReference table))
                                     :friendly-name   (.getFriendlyName table)
                                     :description     (.getDescription table)
+                                    :rows            (.getNumRows table)
+                                    :bytes           (.getNumBytes table)
                                     :schema          (when-let [s (.getSchema table)]
                                                        (gc/to-clojure s))})))
