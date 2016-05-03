@@ -38,7 +38,7 @@
 (defn load-job
   "Creates a job to load data from sources into the table, identified by
   its table reference. "
-  [{:keys [dataset-id project-id table-id] :as table-reference} source-uris & {:keys [create-disposition source-format write-disposition quote skip-leading allow-quoted-newlines]
+  [{:keys [dataset-id project-id table-id] :as table-reference} source-uris & {:keys [create-disposition source-format write-disposition quote skip-leading allow-quoted-newlines max-bad-records]
                                                                                :or   {source-format :json
                                                                                       allow-quoted-newlines false
                                                                                       create-disposition :never
@@ -50,6 +50,8 @@
       (.setQuote load quote))
     (when skip-leading
       (.setSkipLeadingRows load (int skip-leading)))
+    (when max-bad-records
+      (.setMaxBadRecords load (int max-bad-records)))
     (.setAllowQuotedNewlines load allow-quoted-newlines)
     (.setSourceFormat load ({:json "NEWLINE_DELIMITED_JSON"
                              :csv  "CSV"} source-format))
