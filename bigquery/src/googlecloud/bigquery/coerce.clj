@@ -87,7 +87,8 @@
                                     :description     (.getDescription table)
                                     :rows            (.getNumRows table)
                                     :bytes           (.getNumBytes table)
-                                    :view            (gc/to-clojure (.getView table))
+                                    :view            (when-let [v (.getView table)]
+                                                       (gc/to-clojure v))
                                     :schema          (when-let [s (.getSchema table)]
                                                        (gc/to-clojure s))}))
   ViewDefinition
