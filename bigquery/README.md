@@ -23,7 +23,7 @@ Currently `bigquery` supports service account authentication.
 (ns example
   (:require [bigquery.datasets :as bd]))
 
-(bd/insert bigquery-service "project-id" {:id "dataset_id" :friendly-name "name"})
+(bd/insert bigquery-service "project-id" {:reference {:dataset-id "dataset_id"} :friendly-name "name"})
 ```
 
 ### Creating a Table
@@ -31,7 +31,7 @@ Currently `bigquery` supports service account authentication.
 ```clojure
 (ns example
   (:require [bigquery.tables :as bt]))
-  
+
 (def table {:table-reference {:table-id "table_name"
                               :project-id "project-id"
                               :dataset-id "dataset-id"}
@@ -44,7 +44,7 @@ Currently `bigquery` supports service account authentication.
                            :mode :repeated
                            :fields [{:name "line1"
                                      :type :string
-                                     :mode :required]}}]})
+                                     :mode :required}]}]})
 
 (bt/insert bigquery-service table)
 ```
