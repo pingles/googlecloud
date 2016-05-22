@@ -28,11 +28,12 @@
 
 (defn insert-all
   "Inserts records in rows, building inserts with mk-insert-request-row. Can use insert-id function to help BigQuery deduplicate insert requests."
-  [^Bigquery service project-id dataset-id table-id rows & {:keys [insert-id]}]
+  [^Bigquery service project-id dataset-id table-id rows & {:keys [insert-id template-suffix]}]
   (let [data    (map (fn [row]
                        (mk-insert-request-row row :insert-id insert-id))
                      rows)
         request (doto (TableDataInsertAllRequest. )
-                  (.setRows data))
+                  (.setRows data)
+                  (.setTemplateSuffix template-suffix))
         op      (-> service (.tabledata) (.insertAll project-id dataset-id table-id request))]
     (.execute op)))

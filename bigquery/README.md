@@ -23,7 +23,7 @@ Currently `bigquery` supports service account authentication.
 (ns example
   (:require [bigquery.datasets :as bd]))
 
-(bd/insert bigquery-service "project-id" {:id "dataset_id" :friendly-name "name"})
+(bd/insert bigquery-service "project-id" {:reference {:dataset-id "dataset_id"} :friendly-name "name"})
 ```
 
 ### Creating a Table
