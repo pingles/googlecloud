@@ -55,10 +55,11 @@
 (defn insert-object
   "Inserts an object of name into the specified bucket, media-content is
   coerced into an input stream with clojure.java.io/input-stream."
-  [service bucket name media-content & {:keys [content-type]}]
+  [service bucket name media-content & {:keys [content-type content-encoding]}]
   (let [input (InputStreamContent. content-type
                                    (io/input-stream media-content))
-        storage-object (doto (StorageObject. )
-                         (.setName name))
+        storage-object (doto (StorageObject.)
+                         (.setName name)
+                         (.setContentEncoding content-encoding))
         op (-> service (.objects) (.insert bucket storage-object input))]
     (gc/to-clojure (.execute op))))
