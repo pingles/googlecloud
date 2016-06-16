@@ -22,14 +22,15 @@
 
 (extend-protocol gc/ToClojure
   StorageObject
-  (to-clojure [obj] {:id           (.getId obj)
-                     :md5          (.getMd5Hash obj)
-                     :media        (.getMediaLink obj)
-                     :size         (.getSize obj)
-                     :name         (.getName obj)
-                     :updated      (.getUpdated obj)
-                     :meta         (.getMetadata obj)
-                     :content-type (.getContentType obj)}))
+  (to-clojure [obj] {:id               (.getId obj)
+                     :md5              (.getMd5Hash obj)
+                     :media            (.getMediaLink obj)
+                     :size             (.getSize obj)
+                     :name             (.getName obj)
+                     :updated          (.getUpdated obj)
+                     :meta             (.getMetadata obj)
+                     :content-type     (.getContentType obj)
+                     :content-encoding (.getContentEncoding obj)}))
 
 (defn list-objects
   [service bucket]
