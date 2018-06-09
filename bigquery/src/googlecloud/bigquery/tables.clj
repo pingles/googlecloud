@@ -39,11 +39,11 @@
   
 (def table-schema
   "BigQuery Table schema"
-  {:table-reference                table-reference-schema
-   (s/optional-key :description)   (s/maybe s/Str)
-   (s/optional-key :friendly-name) (s/maybe s/Str)
-   (s/optional-key :time-partitioning) (s/maybe time-partitioning-schema)
-   (s/optional-key :schema)        [table-field-schema]})
+  {:table-reference                     table-reference-schema
+   (s/optional-key :description)        (s/maybe s/Str)
+   (s/optional-key :friendly-name)      (s/maybe s/Str)
+   (s/optional-key :schema)             [table-field-schema]
+   (s/optional-key :time-partitioning)  (s/maybe time-partitioning-schema)})
 
 (def field-type {:string "STRING"
                  :integer "INTEGER"
@@ -83,10 +83,10 @@
 (defn- mk-table [{:keys [table-reference description schema friendly-name time-partitioning] :or {time-partitioning nil} :as table} ]
   {:pre [(s/validate table-schema table)]}
   (doto (Table. )
-    (.setTableReference (mk-table-reference table-reference))
-    (.setDescription    description)
-    (.setFriendlyName   friendly-name)
-    (.setSchema         (mk-schema schema))
+    (.setTableReference   (mk-table-reference table-reference))
+    (.setDescription      description)
+    (.setFriendlyName     friendly-name)
+    (.setSchema           (mk-schema schema))
     (.setTimePartitioning (mk-partition time-partitioning))))
 
 (defn insert [service {:keys [table-reference] :as table}]
